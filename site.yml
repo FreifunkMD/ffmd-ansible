@@ -1,0 +1,8 @@
+---
+- hosts:
+    - gateways
+  become_user: root
+
+- hosts:
+    - webserver
+  become_user: root
