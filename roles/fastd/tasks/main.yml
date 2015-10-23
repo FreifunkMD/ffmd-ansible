@@ -10,3 +10,11 @@
 - name: Install fastd package
   apt: name=fastd
   become: yes
+
+- name: Create fastd ffmd configuration directory
+  file: path=/etc/fastd/ffmd state=directory mode=0755
+  become: yes
+
+- name: Create fastd configuration
+  template: src=fastd.conf dest=/etc/fastd/ffmd/fastd.conf mode=0644
+  become: yes
