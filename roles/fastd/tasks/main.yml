@@ -1,0 +1,12 @@
+---
+- name: Add fastd repository key
+  apt_key: keyserver=pool.sks-keyservers.net id=6664E7BDA6B669881EC52E7516EF3F64CB201D9C
+  become: yes
+
+- name: Add fastd repository
+  apt_repository: repo='deb http://repo.universe-factory.net/debian sid main'
+  become: yes
+
+- name: Install fastd package
+  apt: name=fastd
+  become: yes

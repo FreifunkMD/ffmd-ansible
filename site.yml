@@ -1,8 +1,11 @@
 ---
-- hosts:
-    - gateways
+- hosts: gateways
   become_user: root
 
-- hosts:
-    - webserver
+- hosts: webservers
   become_user: root
+
+- hosts: test
+  become_user: root
+  roles:
+    - fastd

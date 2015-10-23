@@ -1,6 +1,8 @@
-[webserver]
+[webservers]
 web1.md.freifunk.net
 
 [gateways]
-gw1.md.freifunk.net
-gw2.md.freifunk.net
+gw[1:2].md.freifunk.net
+
+[test]
+ffmd-test.md.freifunk.net
