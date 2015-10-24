@@ -1,0 +1,18 @@
+---
+- name: Add B.A.T.M.A.N. repository key
+  apt_key: keyserver=pool.sks-keyservers.net id=6664E7BDA6B669881EC52E7516EF3F64CB201D9C
+
+- name: Add B.A.T.M.A.N. repository
+  apt_repository: repo='deb http://repo.universe-factory.net/debian sid main'
+
+- name: Install B.A.T.M.A.N. packages
+  apt: name={{ item }} state=present
+  with_items:
+    - batman-adv-dkms
+    - batctl
+
+- name: Check if 'batman-adv' is loaded at boot
+  lineinfile: dest=/etc/modules line=batman-adv
+
+- name: Load batman-adv module
+  modprobe: name=batman-adv
