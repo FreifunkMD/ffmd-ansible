@@ -1,11 +1,3 @@
 ---
-- hosts: gateways
-  become_user: root
-
-- hosts: webservers
-  become_user: root
-
-- hosts: test
-  become_user: root
-  roles:
-    - fastd
+- include: webservers.yml
+- include: gateways.yml

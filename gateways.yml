@@ -1,0 +1,5 @@
+---
+- hosts: gateways
+  remote_user: root
+  roles:
+    - fastd
