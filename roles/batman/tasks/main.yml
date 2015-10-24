@@ -8,11 +8,18 @@
 - name: Install B.A.T.M.A.N. packages
   apt: name={{ item }} state=present
   with_items:
+    - linux-headers-amd64
     - batman-adv-dkms
     - batctl
+
+- name: Remove B.A.T.M.A.N. dkms module
+  command: dkms remove batman-adv/2013.4.0 --all
+
+- name: Enable B.A.T.M.A.N. dkms module
+  command: dkms --force install batman-adv/2013.4.0
 
 - name: Check if 'batman-adv' is loaded at boot
   lineinfile: dest=/etc/modules line=batman-adv
 
-- name: Load batman-adv module
+- name: Load 'batman-adv' module
   modprobe: name=batman-adv
