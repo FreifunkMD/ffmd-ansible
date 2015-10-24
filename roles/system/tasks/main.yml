@@ -1,0 +1,14 @@
+---
+- name: Add users to system
+  user: name={{ item.name }} state=present groups=sudo
+  with_items: "{{ users }}"
+
+- name: Add ssh public keys from GitHub to users
+  authorized_key: user={{ item.name }} state=present key=https://github.com/{{ item.github }}.keys
+  with_items: "{{ users }}"
+
+- name: Install sudo
+  apt: name=sudo state=present
+
+- name: Enable NOPASSWD for sudo group
+  lineinfile: "dest=/etc/sudoers state=present regexp='^%sudo' line='%sudo ALL=(ALL) NOPASSWD: ALL'"
