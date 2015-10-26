@@ -1,25 +1,30 @@
 ---
-- name: Add B.A.T.M.A.N. repository key
-  apt_key: keyserver=pool.sks-keyservers.net id=6664E7BDA6B669881EC52E7516EF3F64CB201D9C
-
-- name: Add B.A.T.M.A.N. repository
-  apt_repository: repo='deb http://repo.universe-factory.net/debian sid main'
-
-- name: Install B.A.T.M.A.N. packages
+- name: Install batman-adv packages
   apt: name={{ item }} state=present
   with_items:
     - linux-headers-amd64
     - batman-adv-dkms
     - batctl
 
-- name: Remove B.A.T.M.A.N. dkms module
+- name: Get version of loaded batman-adv kernel module
+  command: batctl -v
+  register: batman_adv_version
+  changed_when: False
+
+- name: Remove batman-adv dkms kernel module
   command: dkms remove batman-adv/2013.4.0 --all
+  when: "batman_adv_version.stdout.find('batman-adv: 2013.4.0') == -1"
 
-- name: Enable B.A.T.M.A.N. dkms module
+- name: Enable batman-adv dkms kernel module
   command: dkms --force install batman-adv/2013.4.0
+  when: "batman_adv_version.stdout.find('batman-adv: 2013.4.0') == -1"
 
-- name: Check if 'batman-adv' is loaded at boot
-  lineinfile: dest=/etc/modules line=batman-adv
+- name: Unload batman-adv kernel module
+  command: modprobe -r batman-adv
+  when: "batman_adv_version.stdout.find('batman-adv: 2013.4.0') == -1"
 
-- name: Load 'batman-adv' module
+- name: Load batman-adv kernel module
   modprobe: name=batman-adv
+
+- name: Check if batman-adv is loaded at boot
+  lineinfile: dest=/etc/modules line=batman-adv
