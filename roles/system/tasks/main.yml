@@ -1,4 +1,7 @@
 ---
+- name: Set hostname
+  hostname: name={{ inventory_hostname }}
+
 - name: Add users to system
   user: name={{ item.name }} state=present groups=sudo
   with_items: "{{ users }}"
@@ -12,3 +15,9 @@
 
 - name: Enable NOPASSWD for sudo group
   lineinfile: "dest=/etc/sudoers state=present regexp='^%sudo' line='%sudo ALL=(ALL) NOPASSWD: ALL'"
+
+- name: Install tools
+  apt: name={{ item }} state=present
+  with_items:
+    - htop
+    - vim

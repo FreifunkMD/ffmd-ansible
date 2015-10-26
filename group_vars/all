@@ -5,3 +5,6 @@ users:
   - { name: 'michel', github: 'eriu' }
   - { name: 'sebastian', github: 'bastinat0r' }
   - { name: 'alex', github: 'LeSpocky' }
+
+community_tag: 'ffmd'
+fastd_peer_repository: 'git@gw1.md.freifunk.net:fastdpeers.git'

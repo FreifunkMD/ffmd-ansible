@@ -3,5 +3,6 @@
   remote_user: root
   roles:
     - system
+    - ntp
     - batman
     - fastd

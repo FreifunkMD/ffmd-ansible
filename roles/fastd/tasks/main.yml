@@ -1,9 +1,64 @@
 ---
-- name: Install fastd package
-  apt: name=fastd
+- name: Install fastd packages
+  apt: name={{ item }} state=present
+  with_items:
+    - fastd
+    - git
 
 - name: Create fastd ffmd configuration directory
-  file: path=/etc/fastd/ffmd state=directory mode=0755
+  file: path='/etc/fastd/{{ community_tag }}' state=directory mode=0755
 
 - name: Create fastd configuration
-  template: src=fastd.conf dest=/etc/fastd/ffmd/fastd.conf mode=0644
+  template: src=fastd.conf dest='/etc/fastd/{{ community_tag }}/fastd.conf' mode=0644
+  notify: restart fastd
+
+- name: Check if fastd secret key exists
+  stat: path=/etc/fastd/{{ community_tag }}/secret.conf
+  register: fastd_secret_key_file
+
+- name: Generate fastd secret key
+  command: fastd --generate-key --machine-readable
+  register: fastd_secret_key
+  when: fastd_secret_key_file.stat.exists == False
+
+- name: Create fastd secret key file
+  copy: content='secret "{{ fastd_secret_key.stdout }}";' dest='/etc/fastd/{{ community_tag }}/secret.conf' mode=0600
+  when: fastd_secret_key_file.stat.exists == False
+  notify: restart fastd
+
+- name: Generate fastd public key
+  command: fastd --config /etc/fastd/{{ community_tag }}/fastd.conf --show-key --machine-readable
+  register: fastd_public_key
+  when: fastd_secret_key_file.stat.exists == False
+
+- name: Show fastd public key to user
+  pause: "prompt='Please add the follwing fastd public key to the peers repository: {{ fastd_public_key.stdout_lines[0] }} and press ENTER.'"
+  when: fastd_secret_key_file.stat.exists == False
+
+- name: Check if ssh secret key for root exists
+  stat: path=/root/.ssh/id_rsa
+  register: ssh_secret_key_file
+
+- name: Create ssh key for root user
+  user: name=root generate_ssh_key=yes ssh_key_bits=4096 state=present
+  when: ssh_secret_key_file.stat.exists == False
+
+- name: Get genereted ssh public key
+  command: cat /root/.ssh/id_rsa.pub
+  register: root_public_key
+  changed_when: False
+  when: ssh_secret_key_file.stat.exists == False
+
+- name: Wait for user to deploy ssh public key
+  pause: "prompt='Please deploy the following ssh public key to the fastd peers repository: \"{{ root_public_key.stdout }}\" and press ENTER.'"
+  when: ssh_secret_key_file.stat.exists == False
+
+- name: Clone fastd peers repository
+  git: repo={{ fastd_peer_repository }} dest='/etc/fastd/{{ community_tag }}/peers' accept_hostkey=yes
+  notify: restart fastd
+
+- name: Install fastd peers autoupdate script
+  template: src=autoupdate.sh dest='/etc/fastd/{{ community_tag }}/autoupdate.sh' mode=0755
+
+- name: Create cronjob for fastd peers autoupdate script
+  cron: name='fastd peers autoupdate' minute=*/5 job='/etc/fastd/{{ community_tag }}/autoupdate.sh'

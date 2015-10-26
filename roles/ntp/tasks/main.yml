@@ -1,0 +1,12 @@
+- name: Install NTP deamon
+  apt: name=ntp state=present
+
+- name: Ensure NTP is listening on correct interfaces
+  lineinfile: dest=/etc/ntp.conf line="{{ item.line }}"
+  with_items:
+    - { line: "interface listen 127.0.0.1" }
+    - { line: "interface listen ::1" }
+    - { line: "interface listen {{ ansible_default_ipv4.address }}" }
+    - { line: "interface listen {{ ansible_default_ipv6.address }}" }
+    - { line: "interface ignore wildcard" }
+  notify: restart ntp
