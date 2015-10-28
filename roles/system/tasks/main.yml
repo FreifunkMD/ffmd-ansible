@@ -2,6 +2,10 @@
 - name: Set hostname
   hostname: name={{ inventory_hostname }}
 
+- name: Set timezone
+  command: timedatectl set-timezone Europe/Berlin
+  when: ansible_date_time.tz != "CET" and ansible_date_time.tz != "CEST"
+
 - name: Add users to system
   user: name={{ item.name }} state=present groups=sudo
   with_items: "{{ users }}"
