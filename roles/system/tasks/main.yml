@@ -6,6 +6,16 @@
   command: timedatectl set-timezone Europe/Berlin
   when: ansible_date_time.tz != "CET" and ansible_date_time.tz != "CEST"
 
+- name: Install tools
+  apt: name={{ item }} state=present
+  with_items:
+    - aptitude
+    - htop
+    - vim
+
+- name: Install package updates if necessary
+  apt: update_cache=yes upgrade=full
+
 - name: Add users to system
   user: name={{ item.name }} state=present groups=sudo
   with_items: "{{ users }}"
@@ -19,9 +29,3 @@
 
 - name: Enable NOPASSWD for sudo group
   lineinfile: "dest=/etc/sudoers state=present regexp='^%sudo' line='%sudo ALL=(ALL) NOPASSWD: ALL'"
-
-- name: Install tools
-  apt: name={{ item }} state=present
-  with_items:
-    - htop
-    - vim
