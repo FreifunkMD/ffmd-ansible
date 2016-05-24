@@ -1,7 +1,7 @@
 ---
 users:
   - { name: 'andreas', github: 'apfohl' }
-  - { name: 'cft', github: 'lxusrbin' }
+  - { name: 'christian', github: 'lxusrbin' }
   - { name: 'michel', github: 'eriu' }
   - { name: 'sebastian', github: 'bastinat0r' }
   - { name: 'alex', github: 'LeSpocky' }
